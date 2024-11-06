@@ -10,7 +10,7 @@ namespace StrukturyBazDanychC__Projekt_1
     {
         private const int MaxLength = 30;
 
-        public string Word { get; private set; }
+        public string Word { get; set; }
         public int Size => Word.Length;
 
         // Konstruktor
@@ -31,13 +31,7 @@ namespace StrukturyBazDanychC__Projekt_1
         // Nadpisanie ToString dla czytelnego wyświetlania
         public override string ToString()
         {
-            return Word;
-        }
-
-        // Metoda do uzyskania formatu zapisu o stałym rozmiarze 32 bajty
-        public string ToFixedSizeFormat()
-        {
-            return Word.PadRight(30) + "\n"; 
+            return Word + "\n";
         }
     }
 }
