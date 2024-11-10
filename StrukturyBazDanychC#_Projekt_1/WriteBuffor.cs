@@ -9,7 +9,7 @@ namespace StrukturyBazDanychC__Projekt_1
 {
     public class WriteBuffor
     {
-        public Record[] Records;
+        public Record[] RecordsBlock;
         public string FileToRead;
         public int bufforsize;
         public int ActualIndex;
@@ -17,12 +17,12 @@ namespace StrukturyBazDanychC__Projekt_1
         public WriteBuffor(int bufforSize, string FileName)
         {
             bufforsize = bufforSize;
-            Records = new Record[bufforsize];
+            RecordsBlock = new Record[bufforsize];
             FileToRead = FileName;
             ActualIndex = 0;
         }
 
-        public bool SaveRecord(Record record, SortingInformations x)
+        public bool SaveRecord(Record record, EndInformations x,int option)
         {
             if (ActualIndex == bufforsize)
             {
@@ -30,34 +30,34 @@ namespace StrukturyBazDanychC__Projekt_1
                 {
                     for (ActualIndex = 0; ActualIndex < bufforsize; ActualIndex++)
                     {
-                        writer.WriteLine(Records[ActualIndex].Word);
-                        Console.WriteLine(Records[ActualIndex].Word);
+                        writer.WriteLine(RecordsBlock[ActualIndex].Word);
+                        if(option==1) Console.WriteLine(ActualIndex+": "+ RecordsBlock[ActualIndex].Word);
 
                     }
                 }
-                x.countWrite++;
+                x.AmountOfWrite++;
                 ActualIndex = 0;
-                Array.Clear(Records, 0, Records.Length);
+                Array.Clear(RecordsBlock, 0, RecordsBlock.Length);
             }
             
             if (record == null) return false;
-            Records[ActualIndex]=record;
+            RecordsBlock[ActualIndex]=record;
             ActualIndex++;
             return true;
         }
 
-        public void saveRestValues(SortingInformations x)
+        public void saveRestValues(EndInformations x, int option)
         {
             using (StreamWriter writer = new StreamWriter(FileToRead, append: true))
             {
                 for (int i = 0; i < ActualIndex; i++)
                 {
-                    writer.WriteLine(Records[i].Word);
-                    Console.WriteLine(Records[i].Word);
+                    writer.WriteLine(RecordsBlock[i].Word);
+                    if (option == 1) Console.WriteLine(i + ": " + RecordsBlock[i].Word);
 
                 }
             }
-            x.countWrite++;
+            x.AmountOfWrite++;
             ActualIndex = 0;                  
         }
     }

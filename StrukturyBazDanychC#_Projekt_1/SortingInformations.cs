@@ -6,20 +6,27 @@ using System.Threading.Tasks;
 
 namespace StrukturyBazDanychC__Projekt_1
 {
-    public class SortingInformations
+    public class EndInformations
     {
-        public int countRead = 0;
-        public int countWrite = 0;
-        public int countSplitting = 0;
-        public int countMerge = 0;
+        public int AmountOfRead = 0;
+        public int AmountOfWrite = 0;
+        public int AmountOfSplitting = 0;
+        public int AmountOfMerge = 0;
 
         public void DisplayInformations()
         {
-            Console.WriteLine($"countRead: {countRead}\n" +
-                               $"countWrite: {countWrite}\n" +
-                               $"countRead: {countSplitting}\n" +
-                               $"countRead: {countMerge}\n");
-    }
+            Console.WriteLine($"AmountOfRead: {AmountOfRead}\n" +
+                              $"AmountOfWrite: {AmountOfWrite}\n" +
+                              $"AmountOfSplitting: {AmountOfSplitting}\n" +
+                              $"AmountOfMerge: {AmountOfMerge}\n");
+        }
+        public void ResetInformations()
+        {
+            AmountOfRead = 0;
+            AmountOfWrite = 0;
+            AmountOfSplitting = 0;
+            AmountOfMerge = 0;
+        }
     }
 
 }

@@ -7,28 +7,30 @@ namespace StrukturyBazDanychC__Projekt_1
 {
     class Program
     {
-        public static int count1 = 0;
-        public static int count2 = 0;
         public static void ShowMenu()
         {
+            Console.WriteLine("Author: Przemek Dębek       Numer albumu: 193378\n");
             Console.WriteLine("Wybierz opcję:");
             Console.WriteLine("1) Zapis z klawiatury");
             Console.WriteLine("2) Import z pliku");
             Console.WriteLine("3) Generowanie losowych rekordów do pliku o stałym rozmiarze");
-            Console.WriteLine("4) Sortowanie taśmy");
             Console.WriteLine("0) Wyjście");
         }
-
+        public static void ShowMenu2()
+        {
+            Console.WriteLine("Wybierz opcję sortowania:");
+            Console.WriteLine("0) Sortowanie bez wyświetlania");
+            Console.WriteLine("1) Sortowanie z wyświetlaniem");
+        }
         static void Main(string[] args)
         {
             int option = -1;
             bool sorted=true;
 
-            SortingInformations sortingInformations = new SortingInformations();
+            EndInformations EndInformations = new EndInformations();
             while (true)
             {
                 ShowMenu();
-                Console.Write("Wybierz opcję: ");
 
                 string input = Console.ReadLine();
 
@@ -36,92 +38,80 @@ namespace StrukturyBazDanychC__Projekt_1
                     switch (option)
                     {
                         case 1:
-                            GenerateFromKeyboardRecordsToFile();
+                            GenerateFromKeyboardRecordsToFile(EndInformations);
+                            AllFunctionsToSort(EndInformations, sorted);
                             break;
                         case 2:
                             ImportFromFileToCSV();
+                            AllFunctionsToSort(EndInformations, sorted);
                             break;
                         case 3:
-                            GenerateRandomRecordsDirectlyToFile();
+                            GenerateRandomRecordsDirectlyToFile(EndInformations);
+                            AllFunctionsToSort(EndInformations, sorted);
                             break;
-                        case 4:
-                            Console.WriteLine("Opcja 4: Sortowanie taśmy\n");
-                            CopyFileToSort(sortingInformations);
-                        while (sorted)
-                        {
-                            splitting(sortingInformations);
-                            sorted = merging(sortingInformations);
-                        }
-                        sortingInformations.DisplayInformations();
-                        sorted = true;
-                        break;
-                        case 5:
-                        /**Record x = new Record("xdd");
-                        Record y = x;
-                        Record z = new Record("lasodosadas");
-                        y.Word = "sakdiask";
-                        Console.WriteLine(x.Word + "   "+y.Word+ "    "+ z.Word);
-                        y = z;
-                        Console.WriteLine(x.Word + "   " + y.Word + "    " + z.Word);**/
-                        Record x = new Record("aaa");
-                        Record y = new Record("klaaa");
-                        Record z = new Record("x");
-                        Record p = new Record("{");
-                        Console.WriteLine(x.CompareTo(y));
-                        Console.WriteLine(y.CompareTo(z));
-                        Console.WriteLine(z.CompareTo(x));
-
-                        Console.WriteLine(x.CompareTo(p));
-                        Console.WriteLine(y.CompareTo(p));
-                        Console.WriteLine(z.CompareTo(p));
-
-                        break;
                         case 0:
                             Console.WriteLine("Wyjście z programu.\n");
                             return;
                         default:
-                            Console.WriteLine("Nieznana opcja, spróbuj ponownie.\n");
                             break;
                     }
             }
         }
+        static void AllFunctionsToSort(EndInformations EndInformations, bool sorted)
+        {
+            int option = -1;
+            ShowMenu2();
+            int.TryParse(Console.ReadLine(), out option);
+            while (sorted)
+            {
+                splitting(EndInformations);
+                sorted = merging(EndInformations, option);
+            }
+            CopySortedFileToOutput(EndInformations);
+            EndInformations.DisplayInformations();
+            EndInformations.ResetInformations();
+            sorted = true;
+        }
 
-        static void GenerateRandomRecordsDirectlyToFile()
+        static void GenerateRandomRecordsDirectlyToFile(EndInformations EndInformations)
         {
             Console.Write("Podaj liczbę rekordów do wygenerowania: ");
             int.TryParse(Console.ReadLine(), out int count);
 
             Random random = new Random();
+            WriteBuffor FileA = new WriteBuffor(100, "input.csv");
 
-            using (StreamWriter writer = new StreamWriter("input.csv"))
-            {
+            using (StreamWriter writer = new StreamWriter("input.csv"));
+            
                 for (int i = 0; i < count; i++)
                 {
-                    int length = random.Next(1, 31);
+                    int length = random.Next(1, 30);
                     string word = new string(Enumerable.Repeat("ABCDEFGHIJKLMNOPQRSTUVWXYZ", length)
                                                   .Select(s => s[random.Next(s.Length)]).ToArray());
 
                     Record record = new Record(word);
-                    writer.Write(record.ToString());
+                FileA.SaveRecord(record, EndInformations, 0);
                 }
-            }
+            FileA.saveRestValues(EndInformations, 0);
             Console.WriteLine($"Wygenerowano {count} rekordów i zapisano do pliku input.csv w formacie o stałym rozmiarze.");
         }
 
-        static void GenerateFromKeyboardRecordsToFile()
+        static void GenerateFromKeyboardRecordsToFile(EndInformations EndInformations)
         {
             Console.WriteLine("Podaj liczbę rekordów do zapisania: ");
             int.TryParse(Console.ReadLine(), out int amount);
 
-            using (StreamWriter writer = new StreamWriter("input.csv"))
-            {
+            WriteBuffor FileA = new WriteBuffor(100, "input.csv");
+
+            using (StreamWriter writer = new StreamWriter("input.csv")) ;
+            
                 for (int i = 0; i < amount; i++)
                 {
                     Console.WriteLine(i + " record:");
                     Record record = new Record(Console.ReadLine());
-                    writer.Write(record.ToString());
-                }
+                FileA.SaveRecord(record, EndInformations, 0);
             }
+            FileA.saveRestValues(EndInformations, 0);
             Console.WriteLine($"Wygenerowano {amount} rekordów i zapisano do pliku input.csv w formacie o stałym rozmiarze.");
         }
 
@@ -143,34 +133,60 @@ namespace StrukturyBazDanychC__Projekt_1
             Console.WriteLine($"Zawartość pliku {sourceFileName} rekordów i zapisano do pliku input.csv w formacie o stałym rozmiarze.");
         }
 
-        static void CopyFileToSort(SortingInformations sortingInformations)
+        static void CopyFileToSort(EndInformations EndInformations)
         {
-            ReadBuffor TapeInput = new ReadBuffor(100, "input.csv");
-            WriteBuffor TapeOutputC = new WriteBuffor(100, "TapeInputC.csv");
+            ReadBuffor FileA = new ReadBuffor(100, "input.csv");
+            WriteBuffor FileB = new WriteBuffor(100, "TapeInputC.csv");
             //creating new file
             using (StreamWriter writer = new StreamWriter("TapeInputC.csv"));
 
             Record Record_TMP;
+            while (true)
+            {
+                Record_TMP = FileA.NextRecord(EndInformations);
+                if (Record_TMP == null) break;
+                Console.WriteLine(Record_TMP.Word);
+
+                FileB.SaveRecord(Record_TMP, EndInformations, 0);
+            }
+            FileB.saveRestValues(EndInformations, 0);
+        }
+
+        static void CopySortedFileToOutput(EndInformations EndInformations)
+        {
+            ReadBuffor FileA = new ReadBuffor(100, "TapeOutputA.csv");
+            WriteBuffor FileB = new WriteBuffor(100, "Output.csv");
+            //creating new file
+            using (StreamWriter writer = new StreamWriter("Output.csv"));
+            Record Record_TMP;
 
             while (true)
             {
-                Record_TMP = TapeInput.NextRecord(sortingInformations);
+                Record_TMP = FileA.NextRecord(EndInformations); 
                 if (Record_TMP == null) break;
 
-                TapeOutputC.SaveRecord(Record_TMP, sortingInformations);
+                Console.WriteLine(Record_TMP.Word);
+
+                FileB.SaveRecord(Record_TMP, EndInformations, 0);
             }
-            TapeOutputC.saveRestValues(sortingInformations);
+            FileB.saveRestValues(EndInformations, 0);
+
+            if (File.Exists("TapeOutputA.csv") && File.Exists("TapeOutputB.csv") && (File.Exists("input.csv"))){
+
+                File.Delete("TapeOutputA.csv");
+                File.Delete("TapeOutputB.csv");
+                File.Delete("input.csv");
+            }
         }
 
-        static void splitting(SortingInformations sortingInformations)
+        static void splitting(EndInformations EndInformations)
         {
-            count1++;
-            Console.WriteLine(count1);
+            EndInformations.AmountOfSplitting++;
 
             bool FirstValueIsSet = false;
-            ReadBuffor TapeInputC = new ReadBuffor(100, "TapeInputC.csv");
-            WriteBuffor TapeOutputA = new WriteBuffor(100, "TapeOutputA.csv");
-            WriteBuffor TapeOutputB = new WriteBuffor(100, "TapeOutputB.csv");
+            ReadBuffor FileA = new ReadBuffor(100, "input.csv");
+            WriteBuffor FileB = new WriteBuffor(100, "TapeOutputA.csv");
+            WriteBuffor FileC = new WriteBuffor(100, "TapeOutputB.csv");
 
             //creating new files
             using (StreamWriter writer = new StreamWriter("TapeOutputA.csv"));
@@ -179,11 +195,11 @@ namespace StrukturyBazDanychC__Projekt_1
             Record Record_TMP;
             Record LastValue=null;
 
-            WriteBuffor TapeTmp = TapeOutputA;
+            WriteBuffor TapeTmp = FileB;
 
             while(true)
             {
-                Record_TMP = TapeInputC.NextRecord(sortingInformations);
+                Record_TMP = FileA.NextRecord(EndInformations);
                 if (!FirstValueIsSet)
                 {
                     LastValue = new Record(Record_TMP.Word);
@@ -193,28 +209,27 @@ namespace StrukturyBazDanychC__Projekt_1
 
                 if (Record_TMP.CompareTo(LastValue) < 0)
                 {
-                    if (TapeTmp == TapeOutputB) TapeTmp = TapeOutputA;
-                    else TapeTmp=TapeOutputB;
+                    if (TapeTmp == FileC) TapeTmp = FileB;
+                    else TapeTmp= FileC;
                 }
 
-                TapeTmp.SaveRecord(Record_TMP,sortingInformations);
+                TapeTmp.SaveRecord(Record_TMP, EndInformations, 0);
                 LastValue = new Record(Record_TMP.Word);
             }
-            TapeOutputA.saveRestValues(sortingInformations);
-            TapeOutputB.saveRestValues(sortingInformations);
-            using (StreamWriter writer = new StreamWriter("TapeInputC.csv"));
+            FileB.saveRestValues(EndInformations, 0);
+            FileC.saveRestValues(EndInformations, 0);
+            using (StreamWriter writer = new StreamWriter("input.csv"));
         }
 
-        static bool merging(SortingInformations sortingInformations)
+        static bool merging(EndInformations EndInformations, int option)
         {
-            count2++;
-            Console.WriteLine(count2);
-            WriteBuffor TapeOutputC = new WriteBuffor(100, "TapeInputC.csv");
-            ReadBuffor TapeInputA = new ReadBuffor(100, "TapeOutputA.csv");
-            ReadBuffor TapeInputB = new ReadBuffor(100, "TapeOutputB.csv");
+            EndInformations.AmountOfMerge++;
+            WriteBuffor FileA = new WriteBuffor(100, "input.csv");
+            ReadBuffor FileB = new ReadBuffor(100, "TapeOutputA.csv");
+            ReadBuffor FileC = new ReadBuffor(100, "TapeOutputB.csv");
 
-            Record recordA = TapeInputA.NextRecord(sortingInformations);
-            Record recordB = TapeInputB.NextRecord(sortingInformations);
+            Record recordA = FileB.NextRecord(EndInformations);
+            Record recordB = FileC.NextRecord(EndInformations);
             Record tempValueA = new Record("!");
             Record tempValueB = new Record("!");
 
@@ -229,15 +244,15 @@ namespace StrukturyBazDanychC__Projekt_1
                     {
                         if (recordA.CompareTo(recordB) > 0)
                         {
-                            TapeOutputC.SaveRecord(recordB, sortingInformations);
+                            FileA.SaveRecord(recordB, EndInformations, option);
                             tempValueB = new Record(recordB.Word);
-                            recordB = TapeInputB.NextRecord(sortingInformations);
+                            recordB = FileC.NextRecord(EndInformations);
                         }
                         else
                         {
-                            TapeOutputC.SaveRecord(recordA, sortingInformations);
+                            FileA.SaveRecord(recordA, EndInformations, option);
                             tempValueA = new Record(recordA.Word);
-                            recordA = TapeInputA.NextRecord(sortingInformations);
+                            recordA = FileB.NextRecord(EndInformations);
                         }
                     }
                     //tutaj zbieramy tasme B co zostala
@@ -245,9 +260,9 @@ namespace StrukturyBazDanychC__Projekt_1
                     {
                         while (recordB!=null && recordB.CompareTo(tempValueB) >= 0)
                         {
-                            TapeOutputC.SaveRecord(recordB, sortingInformations);
+                            FileA.SaveRecord(recordB, EndInformations, option);
                             tempValueB = new Record(recordB.Word);
-                            recordB = TapeInputB.NextRecord(sortingInformations);
+                            recordB = FileC.NextRecord(EndInformations);
                         }
                         tempValueA = new Record("!");
                         tempValueB = new Record("!");
@@ -257,9 +272,9 @@ namespace StrukturyBazDanychC__Projekt_1
                     {
                         while (recordA !=null && recordA.CompareTo(tempValueA) >= 0)
                         {
-                            TapeOutputC.SaveRecord(recordA, sortingInformations);
+                            FileA.SaveRecord(recordA, EndInformations, option);
                             tempValueA = new Record(recordA.Word);
-                            recordA = TapeInputA.NextRecord(sortingInformations);
+                            recordA = FileB.NextRecord(EndInformations);
                         }
                         tempValueA = new Record("!");
                         tempValueB = new Record("!");
@@ -272,18 +287,18 @@ namespace StrukturyBazDanychC__Projekt_1
                 {
                     while (recordB != null)
                     {
-                        TapeOutputC.SaveRecord(recordB, sortingInformations);
+                        FileA.SaveRecord(recordB, EndInformations, option);
                         tempValueB = new Record(recordB.Word);
-                        recordB = TapeInputB.NextRecord(sortingInformations);
+                        recordB = FileC.NextRecord(EndInformations);
                     }
                 }
                 else if(recordB==null && recordA != null)
                 {
                     while (recordA != null)
                     {
-                        TapeOutputC.SaveRecord(recordA, sortingInformations);
+                        FileA.SaveRecord(recordA, EndInformations, option);
                         tempValueA = new Record(recordA.Word);
-                        recordA = TapeInputA.NextRecord(sortingInformations);
+                        recordA = FileB.NextRecord(EndInformations);
                     }
                 }
                 else
@@ -291,7 +306,7 @@ namespace StrukturyBazDanychC__Projekt_1
                     break;
                 }
             }
-            TapeOutputC.saveRestValues(sortingInformations);
+            FileA.saveRestValues(EndInformations, option);
             return true;
         }
     }

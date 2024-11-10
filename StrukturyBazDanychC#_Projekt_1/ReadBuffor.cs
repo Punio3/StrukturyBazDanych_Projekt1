@@ -9,7 +9,7 @@ namespace StrukturyBazDanychC__Projekt_1
 {
     public class ReadBuffor
     {
-        public Record[] Records;
+        public Record[] RecordsBlock;
         public string FileToRead;
         public bool isEndOfFile;
         public int bufforsize;
@@ -21,17 +21,17 @@ namespace StrukturyBazDanychC__Projekt_1
             bufforsize = bufforSize;
             isEndOfFile = false;
             IndexOfLastRecordRode = 0;
-            Records=new Record[bufforsize];
+            RecordsBlock = new Record[bufforsize];
             FileToRead = FileName;
             ActualIndex = 0;
         }
 
-        public Record NextRecord(SortingInformations x)
+        public Record NextRecord(EndInformations x)
         {
             int ActualIndexCopy = -1;
             if (ActualIndex == bufforsize || IndexOfLastRecordRode == 0)
             {
-                Array.Clear(Records, 0, Records.Length);
+                Array.Clear(RecordsBlock, 0, RecordsBlock.Length);
                 using (StreamReader reader = new StreamReader(FileToRead))
                 {
                     int currentLine = 0;
@@ -49,7 +49,7 @@ namespace StrukturyBazDanychC__Projekt_1
                         tmp = reader.ReadLine();
                         if (tmp != null)
                         {
-                            Records[ActualIndex] = new Record(tmp);
+                            RecordsBlock[ActualIndex] = new Record(tmp);
                             ActualIndex++;
                         }
                         else isEndOfFile = true;                        
@@ -58,13 +58,13 @@ namespace StrukturyBazDanychC__Projekt_1
                 IndexOfLastRecordRode = IndexOfLastRecordRode + ActualIndex;
                 ActualIndexCopy = ActualIndex;
                 ActualIndex = 0;
-                x.countRead++;
+                x.AmountOfRead++;
             }
 
             if (ActualIndexCopy == 0 && isEndOfFile) return null;
             
             ActualIndex++;
-            return Records[ActualIndex-1];
+            return RecordsBlock[ActualIndex-1];
 
         }
     }
